@@ -7,6 +7,9 @@ import Control.Monad
 symbol :: Parser Char
 symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
 
+optionalSpaces :: Parser ()
+optionalSpaces = skipMany space
+
 spaces :: Parser ()
 spaces = skipMany1 space
 
@@ -46,6 +49,7 @@ parseNumber :: Parser Expression
 parseNumber = liftM (Number . read) $ many1 digit
 
 parseListInterior :: Parser Expression
+-- parseListInterior = liftM List $ many (parseExpression <* spaces)
 parseListInterior = liftM List $ sepBy parseExpression spaces
 
 parseQuote :: Parser Expression
@@ -57,7 +61,9 @@ parseQuote = do
 parseList :: Parser Expression
 parseList = do
   char '('
+  optionalSpaces
   x <- parseListInterior
+  optionalSpaces
   char ')'
   return x
 
@@ -76,3 +82,4 @@ main = do
   case expr of
     Right x -> print x
     Left err -> putStrLn $ "Error: " ++ show err
+  main
